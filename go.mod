@@ -1,4 +1,4 @@
-module github.com/clickonetwo/adobe-usage-tracker
+module github.com/clickonetwo/adobe_usage_tracker
 
 go 1.22.1
 
