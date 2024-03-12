@@ -20,7 +20,7 @@ import (
 
 func init() {
 	caddy.RegisterModule(AdobeUsageTracker{})
-	httpcaddyfile.RegisterHandlerDirective("visitor_ip", parseCaddyfile)
+	httpcaddyfile.RegisterHandlerDirective("adobe_usage_tracker", parseCaddyfile)
 }
 
 // AdobeUsageTracker implements an HTTP handler that writes the
