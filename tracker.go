@@ -65,7 +65,6 @@ func (m *AdobeUsageTracker) Validate() error {
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m AdobeUsageTracker) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	msg := fmt.Sprintf("Log upload from %s with %d bytes.\n", r.RemoteAddr, r.ContentLength)
-	os.WriteFile("/tmp/tracker.txt", []byte(msg), 0644)
 	_, err := m.w.Write([]byte(msg))
 	if err != nil {
 		return err
