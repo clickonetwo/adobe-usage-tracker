@@ -1,6 +1,6 @@
 module github.com/clickonetwo/adobe_usage_tracker
 
-go 1.22.1
+go 1.21.8
 
 require github.com/caddyserver/caddy/v2 v2.7.6
 
