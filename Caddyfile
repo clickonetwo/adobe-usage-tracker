@@ -1,0 +1,15 @@
+:443 {
+	log {
+		output stderr
+		level DEBUG
+	}
+	tls /etc/caddy/lcs-ulecs.pem.cert /etc/caddy/lcs-ulecs.pem.key
+	@post {
+		method POST
+	}
+	route @post {
+		adobe_usage_tracker stderr
+		reverse_proxy https://lcs-ulecs.adobe.io
+	}
+	reverse_proxy https://lcs-ulecs.adobe.io
+}
