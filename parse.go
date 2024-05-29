@@ -16,9 +16,9 @@ var (
 		"line":   regexp.MustCompile(`SessionID=([^.]+\.([0-9]+)) Timestamp=([^ ]+) .*Description="(.+)"`),
 		"os":     regexp.MustCompile(`SetConfig:.+OS Name=([^\s,]+), OS Version=([^\s,]+)`),
 		"app":    regexp.MustCompile(`SetConfig:.+AppID=([^,]+), AppVersion=([^\s,]+)`),
-		"ngl":    regexp.MustCompile(`SetConfig:.+NGLVersion=([^\s,]+)`),
-		"locale": regexp.MustCompile(`SetConfig:.+Locale=([^\s,]+)`),
-		"user":   regexp.MustCompile(`SetConfig:.+User=([^\s,]+)`),
+		"ngl":    regexp.MustCompile(`SetConfig:.+NGLLibVersion=([^\s,]+)`),
+		"locale": regexp.MustCompile(`SetAppRuntimeConfig:.+AppLocale=([^\s,]+)`),
+		"user":   regexp.MustCompile(`LogCurrentUser:.+UserID=([^\s,]+)`),
 	}
 )
 

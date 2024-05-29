@@ -8,7 +8,12 @@
 		method POST
 	}
 	route @post {
-		adobe_usage_tracker stderr
+		adobe_usage_tracker {
+		    endpoint https://influxUploadHost
+		    database InfluxDatabaseName
+		    policy InfuxRetentionPolicyName
+		    token InfluxApiTokenWithUploadPrivilege
+        }
 		reverse_proxy https://lcs-ulecs.adobe.io
 	}
 	reverse_proxy https://lcs-ulecs.adobe.io
