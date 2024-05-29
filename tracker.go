@@ -34,10 +34,10 @@ func init() {
 // - the retention policy of the database
 // - an API token authorized for writes of the database
 type AdobeUsageTracker struct {
-	endpoint string `json:"endpoint,omitempty"`
-	database string `json:"database,omitempty"`
-	policy   string `json:"policy,omitempty"`
-	token    string `json:"token,omitempty"`
+	Endpoint string `json:"endpoint,omitempty"`
+	Database string `json:"database,omitempty"`
+	Policy   string `json:"policy,omitempty"`
+	Token    string `json:"token,omitempty"`
 
 	ep  string
 	db  string
@@ -55,35 +55,35 @@ func (AdobeUsageTracker) CaddyModule() caddy.ModuleInfo {
 
 // Provision implements caddy.Provisioner.
 func (m *AdobeUsageTracker) Provision(caddy.Context) error {
-	if m.endpoint == "" {
+	if m.Endpoint == "" {
 		return fmt.Errorf("An endpoint URL must be specified")
 	}
-	u, err := url.Parse(m.endpoint)
+	u, err := url.Parse(m.Endpoint)
 	if err != nil {
-		return fmt.Errorf("%q is not a valid endpoint url: %v", m.endpoint, err)
+		return fmt.Errorf("%q is not a valid endpoint url: %v", m.Endpoint, err)
 	}
 	if u.Scheme != "https" {
 		return fmt.Errorf("The endpoint protocol must be https, not '%s'", u.Scheme)
 	}
 	if u.Hostname() == "" {
-		return fmt.Errorf("The endpoint %q is missing a hostname", m.endpoint)
+		return fmt.Errorf("The endpoint %q is missing a hostname", m.Endpoint)
 	}
 	if u.Path != "" || u.RawQuery != "" || u.Fragment != "" {
-		return fmt.Errorf("The endpoint %q cannot have a path, query, or fragment portion", m.endpoint)
+		return fmt.Errorf("The endpoint %q cannot have a path, query, or fragment portion", m.Endpoint)
 	}
-	m.ep = m.endpoint
-	if m.database == "" {
+	m.ep = m.Endpoint
+	if m.Database == "" {
 		return fmt.Errorf("A database must be specified")
 	}
-	m.db = m.database
-	if m.policy == "" {
+	m.db = m.Database
+	if m.Policy == "" {
 		return fmt.Errorf("A retention policy must be specified")
 	}
-	m.pol = m.policy
-	if m.token == "" {
+	m.pol = m.Policy
+	if m.Token == "" {
 		return fmt.Errorf("A token must be specified")
 	}
-	m.tok = m.token
+	m.tok = m.Token
 	return nil
 }
 
@@ -142,13 +142,13 @@ func (m *AdobeUsageTracker) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 		}
 		switch key {
 		case "endpoint":
-			m.endpoint = d.Val()
+			m.Endpoint = d.Val()
 		case "database":
-			m.database = d.Val()
+			m.Database = d.Val()
 		case "policy":
-			m.policy = d.Val()
+			m.Policy = d.Val()
 		case "token":
-			m.token = d.Val()
+			m.Token = d.Val()
 		default:
 			return d.ArgErr()
 		}
