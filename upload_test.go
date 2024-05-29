@@ -31,7 +31,7 @@ var (
 )
 
 func TestSessionLineDurationOnly(t *testing.T) {
-	expected := `launch,sessionId=testSession1 launchDuration=320010 1716994039000`
+	expected := `log-session,sessionId=testSession1 launchDuration=320010 1716994039000`
 
 	s := logSession{
 		sessionId:      sessionId,
@@ -45,7 +45,7 @@ func TestSessionLineDurationOnly(t *testing.T) {
 }
 
 func TestSessionLineAllFields(t *testing.T) {
-	expected := `launch,sessionId=testSession1 launchDuration=320010` +
+	expected := `log-session,sessionId=testSession1 launchDuration=320010` +
 		`,appId="InDesign1",appVersion="19.2"` +
 		`,appLocale="en_US"` +
 		`,nglVersion="1.35.0.19"` +
@@ -72,7 +72,7 @@ func TestSessionLineAllFields(t *testing.T) {
 }
 
 func TestUploadSessionLine1(t *testing.T) {
-	line1 := `launch,sessionId=testSession1 launchDuration=320010` +
+	line1 := `log-session,sessionId=testSession1 launchDuration=320010` +
 		`,appId="InDesign1",appVersion="19.2"` +
 		`,appLocale="en_US"` +
 		`,nglVersion="1.35.0.19"` +
@@ -87,7 +87,7 @@ func TestUploadSessionLine1(t *testing.T) {
 }
 
 func TestUploadSessionLine2(t *testing.T) {
-	line2 := `launch,sessionId=testSession1 launchDuration=640020 1716994039000`
+	line2 := `log-session,sessionId=testSession1 launchDuration=640020 1716994039000`
 	lines := []string{line2}
 	logger := zaptest.NewLogger(t)
 	if !uploadLines(ep, db, pol, tok, lines, logger) {
@@ -96,14 +96,14 @@ func TestUploadSessionLine2(t *testing.T) {
 }
 
 func TestUploadSessionBothLines(t *testing.T) {
-	line1 := `launch,sessionId=testSession1 launchDuration=320010` +
+	line1 := `log-session,sessionId=testSession1 launchDuration=320010` +
 		`,appId="InDesign1",appVersion="19.2"` +
 		`,appLocale="en_US"` +
 		`,nglVersion="1.35.0.19"` +
 		`,osName="MAC",osVersion="14.3.1"` +
 		`,userId="9e5fa"` +
 		` 1716994039000`
-	line2 := `launch,sessionId=testSession1 launchDuration=640020 1716994039000`
+	line2 := `log-session,sessionId=testSession1 launchDuration=640020 1716994039000`
 	lines := []string{line1, line2}
 	logger := zaptest.NewLogger(t)
 	if !uploadLines(ep, db, pol, tok, lines, logger) {

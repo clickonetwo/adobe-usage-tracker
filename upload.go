@@ -28,7 +28,7 @@ func sendSessions(ep string, db string, pol string, tok string, sessions []logSe
 
 // sessionLine constructs a line protocol line for the given logSession
 func sessionLine(s logSession) string {
-	line := fmt.Sprintf("launch,sessionId=%s launchDuration=%d", s.sessionId, s.launchDuration.Milliseconds())
+	line := fmt.Sprintf("log-session,sessionId=%s launchDuration=%d", s.sessionId, s.launchDuration.Milliseconds())
 	if s.appId != "" {
 		line = line + fmt.Sprintf(",appId=%q,appVersion=%q", s.appId, s.appVersion)
 	}
