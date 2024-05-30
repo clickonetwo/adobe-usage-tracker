@@ -41,7 +41,7 @@ type AdobeUsageTracker struct {
 
 	ep  string
 	db  string
-	pol string
+	rp  string
 	tok string
 }
 
@@ -79,7 +79,7 @@ func (m *AdobeUsageTracker) Provision(caddy.Context) error {
 	if m.Policy == "" {
 		return fmt.Errorf("A retention policy must be specified")
 	}
-	m.pol = m.Policy
+	m.rp = m.Policy
 	if m.Token == "" {
 		return fmt.Errorf("A token must be specified")
 	}
@@ -108,7 +108,7 @@ func (m *AdobeUsageTracker) Validate() error {
 	if m.db == "" {
 		return fmt.Errorf("A database must be specified")
 	}
-	if m.pol == "" {
+	if m.rp == "" {
 		return fmt.Errorf("A retention policy must be specified")
 	}
 	if m.tok == "" {
@@ -124,7 +124,7 @@ func (m AdobeUsageTracker) ServeHTTP(w http.ResponseWriter, r *http.Request, nex
 		return err
 	}
 	sessions := parseLog(string(b))
-	go sendSessions(m.ep, m.db, m.pol, m.tok, sessions)
+	sendSessions(m.ep, m.db, m.rp, m.tok, sessions)
 	r.Body = io.NopCloser(bytes.NewReader(b))
 	return next.ServeHTTP(w, r)
 }
