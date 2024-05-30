@@ -148,5 +148,8 @@ func TestParseLatestLogs(t *testing.T) {
 		if session.userId == "" {
 			t.Errorf("In file %s: Expected userId to be non-empty", file)
 		}
+		if session.launchDuration == 0 {
+			t.Errorf("In file %s: Expected launchDuration to be non-zero", file)
+		}
 	}
 }
