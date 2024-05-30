@@ -9,6 +9,7 @@ package tracker
 import (
 	"go.uber.org/zap/zaptest"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -108,5 +109,26 @@ func TestUploadSessionBothLines(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	if !uploadLines(ep, db, pol, tok, lines, logger) {
 		t.Errorf("uploadLines(%v): expected true, got false", lines)
+	}
+}
+
+func TestUploadLatestLogs(t *testing.T) {
+	files, err := filepath.Glob("testdata/*.log")
+	if err != nil {
+		t.Fatalf("Cannot glob testdata/*.log: %s", err)
+	}
+	for _, file := range files {
+		buffer, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatalf("Cannot read file %s: %s", file, err)
+		}
+		sessions := parseLog(string(buffer))
+		if len(sessions) == 0 {
+			continue
+		}
+		logger := zaptest.NewLogger(t)
+		if !sendSessionsInternal(ep, db, pol, tok, sessions, logger) {
+			t.Errorf("Failed to send sessions from: %s", file)
+		}
 	}
 }

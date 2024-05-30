@@ -124,9 +124,7 @@ func (m AdobeUsageTracker) ServeHTTP(w http.ResponseWriter, r *http.Request, nex
 		return err
 	}
 	sessions := parseLog(string(b))
-	if len(sessions) > 0 {
-		go sendSessions(m.ep, m.db, m.pol, m.tok, sessions)
-	}
+	go sendSessions(m.ep, m.db, m.pol, m.tok, sessions)
 	r.Body = io.NopCloser(bytes.NewReader(b))
 	return next.ServeHTTP(w, r)
 }

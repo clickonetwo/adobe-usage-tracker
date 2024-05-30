@@ -19,11 +19,17 @@ import (
 // sendSessions takes an InfluxDB upload URL and a sequence of logSessions
 // and uploads the logSession data to InfluxDB.
 func sendSessions(ep string, db string, pol string, tok string, sessions []logSession) {
+	if len(sessions) > 0 {
+		sendSessionsInternal(ep, db, pol, tok, sessions, nil)
+	}
+}
+
+func sendSessionsInternal(ep string, db string, pol string, tok string, sessions []logSession, logger *zap.Logger) bool {
 	var lines = make([]string, 0, len(sessions))
 	for _, session := range sessions {
 		lines = append(lines, sessionLine(session))
 	}
-	uploadLines(ep, db, pol, tok, lines, nil)
+	return uploadLines(ep, db, pol, tok, lines, logger)
 }
 
 // sessionLine constructs a line protocol line for the given logSession

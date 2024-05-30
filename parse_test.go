@@ -9,6 +9,7 @@ package tracker
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -119,5 +120,33 @@ func TestParseMultiSessionLogs(t *testing.T) {
 			"Session 1 launch time (%v) < Session 3 launch time (%v)",
 			session1.launchTime, session3.launchTime,
 		)
+	}
+}
+
+func TestParseLatestLogs(t *testing.T) {
+	files, err := filepath.Glob("testdata/*.log")
+	if err != nil {
+		t.Fatalf("Cannot glob testdata/*.log: %s", err)
+	}
+	for _, file := range files {
+		buffer, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatalf("Cannot read file %s: %s", file, err)
+		}
+		sessions := parseLog(string(buffer))
+		if len(sessions) == 0 {
+			t.Errorf("No sessions found in file %s", file)
+			continue
+		}
+		session := sessions[0]
+		if session.appId == "" || session.appVersion == "" || session.appLocale == "" {
+			t.Errorf("In file %s: Expected appId and appVersion and appLocale to be non-empty", file)
+		}
+		if session.nglVersion == "" || session.osName == "" || session.osVersion == "" {
+			t.Errorf("In file %s: Expected nglVersion and osName and osVersion to be non-empty", file)
+		}
+		if session.userId == "" {
+			t.Errorf("In file %s: Expected userId to be non-empty", file)
+		}
 	}
 }
