@@ -3,9 +3,12 @@
  * All the copyrighted work in this repository is licensed under the
  * GNU Affero General Public License v3, reproduced in the LICENSE file.
  */
+
+// Package tracker provides the caddy adobe_usage_tracker plugin.
 package tracker
 
 import (
+	"go.uber.org/zap/zapcore"
 	"regexp"
 	"strconv"
 	"time"
@@ -13,7 +16,7 @@ import (
 
 var (
 	regexMap = map[string]*regexp.Regexp{
-		"line":   regexp.MustCompile(`SessionID=([^.]+\.([0-9]+)) Timestamp=([^ ]+) .*Description="(.+)"`),
+		"line":   regexp.MustCompile(`SessionID=([^.]+\.([0-9]+)) Timestamp=([^ ]+) [^\r\n]*Description="([^\r\n]+)"`),
 		"os":     regexp.MustCompile(`SetConfig:.+OS Name=([^\s,]+), OS Version=([^\s,]+)`),
 		"app":    regexp.MustCompile(`SetConfig:.+AppID=([^,]+), AppVersion=([^\s,]+)`),
 		"ngl":    regexp.MustCompile(`SetConfig:.+NGLLibVersion=([^\s,]+)`),
@@ -43,6 +46,7 @@ type logSession struct {
 	sessionId      string
 	launchTime     time.Time
 	launchDuration time.Duration
+	clientIp       string
 	appId          string // NGL app ID
 	appVersion     string
 	appLocale      string
@@ -52,10 +56,25 @@ type logSession struct {
 	userId         string // a SHA1 of the logged-in Adobe user ID
 }
 
+func (l logSession) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("sessionId", l.sessionId)
+	enc.AddString("launchTime", l.launchTime.Format(time.RFC3339))
+	enc.AddString("launchDuration", l.launchDuration.String())
+	enc.AddString("clientIp", l.clientIp)
+	enc.AddString("appId", l.appId)
+	enc.AddString("appVersion", l.appVersion)
+	enc.AddString("appLocale", l.appLocale)
+	enc.AddString("nglVersion", l.nglVersion)
+	enc.AddString("osName", l.osName)
+	enc.AddString("osVersion", l.osVersion)
+	enc.AddString("userId", l.userId)
+	return nil
+}
+
 // parseLog reads every line of a log's contents, and returns
 // a slice of the logSessions found in the log.  It never fails,
 // but it will return an empty slice on malformed input.
-func parseLog(log string) (sessions []logSession) {
+func parseLog(log string, ip string) (sessions []logSession) {
 	var session logSession
 	var lastTime time.Time
 	endSession := func() {
@@ -69,7 +88,7 @@ func parseLog(log string) (sessions []logSession) {
 	for _, line := range regexMap["line"].FindAllStringSubmatch(log, -1) {
 		if sessionId := line[1]; sessionId != session.sessionId {
 			endSession()
-			session = logSession{sessionId: sessionId, launchTime: parseTimeMillis(line[2])}
+			session = logSession{sessionId: sessionId, launchTime: parseTimeMillis(line[2]), clientIp: ip}
 		}
 		lastTime = parseLogTimestamp(line[3])
 		parseLogDescription(line[4], &session)

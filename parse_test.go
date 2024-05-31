@@ -20,7 +20,7 @@ func TestParseSingleSessionLogs(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to read file %s: %s", path, err)
 		}
-		sessions := parseLog(string(buffer))
+		sessions := parseLog(string(buffer), "127.0.0.1:53450")
 		if len(sessions) != 1 {
 			t.Fatalf("Expected 1 session, got %d", len(sessions))
 		}
@@ -59,7 +59,7 @@ func TestParseSplitSessionLogs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read file %s: %s", path1, err)
 	}
-	sessions = parseLog(string(buffer))
+	sessions = parseLog(string(buffer), "127.0.0.1:53450")
 	if len(sessions) != 1 {
 		t.Fatalf("%s: Expected 1 session, got %d", path1, len(sessions))
 	}
@@ -68,7 +68,7 @@ func TestParseSplitSessionLogs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read file %s: %s", path2, err)
 	}
-	sessions = parseLog(string(buffer))
+	sessions = parseLog(string(buffer), "127.0.0.1:53450")
 	if len(sessions) != 1 {
 		t.Fatalf("%s: Expected 1 session, got %d", path2, len(sessions))
 	}
@@ -94,7 +94,7 @@ func TestParseMultiSessionLogs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read file %s: %s", path1, err)
 	}
-	sessions = parseLog(string(buffer))
+	sessions = parseLog(string(buffer), "127.0.0.1:53450")
 	if len(sessions) != 1 {
 		t.Fatalf("%s: Expected 1 session, got %d", path1, len(sessions))
 	}
@@ -103,7 +103,7 @@ func TestParseMultiSessionLogs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read file %s: %s", path2, err)
 	}
-	sessions = parseLog(string(buffer))
+	sessions = parseLog(string(buffer), "127.0.0.1:53450")
 	if len(sessions) != 2 {
 		t.Fatalf("%s: Expected 2 sessions, got %d", path2, len(sessions))
 	}
@@ -133,7 +133,7 @@ func TestParseLatestLogs(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Cannot read file %s: %s", file, err)
 		}
-		sessions := parseLog(string(buffer))
+		sessions := parseLog(string(buffer), "127.0.0.1:53450")
 		if len(sessions) == 0 {
 			t.Errorf("No sessions found in file %s", file)
 			continue

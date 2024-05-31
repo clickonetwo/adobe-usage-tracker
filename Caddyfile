@@ -1,8 +1,4 @@
 :443 {
-	log {
-		output stderr
-		level DEBUG
-	}
 	tls /etc/caddy/lcs-ulecs.pem.cert /etc/caddy/lcs-ulecs.pem.key
 	@post {
 		method POST

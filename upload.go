@@ -4,6 +4,7 @@
  * GNU Affero General Public License v3, reproduced in the LICENSE file.
  */
 
+// Package tracker provides the caddy adobe_usage_tracker plugin.
 package tracker
 
 import (
@@ -18,23 +19,24 @@ import (
 
 // sendSessions takes an InfluxDB upload URL and a sequence of logSessions
 // and uploads the logSession data to InfluxDB.
-func sendSessions(ep string, db string, pol string, tok string, sessions []logSession) {
-	if len(sessions) > 0 {
-		sendSessionsInternal(ep, db, pol, tok, sessions, nil)
+func sendSessions(ep string, db string, pol string, tok string, sessions []logSession, logger *zap.Logger) error {
+	if len(sessions) == 0 {
+		return nil
 	}
-}
-
-func sendSessionsInternal(ep string, db string, pol string, tok string, sessions []logSession, logger *zap.Logger) bool {
 	var lines = make([]string, 0, len(sessions))
 	for _, session := range sessions {
-		lines = append(lines, sessionLine(session))
+		lines = append(lines, sessionLine(session, logger))
 	}
 	return uploadLines(ep, db, pol, tok, lines, logger)
 }
 
 // sessionLine constructs a line protocol line for the given logSession
-func sessionLine(s logSession) string {
-	line := fmt.Sprintf("log-session,sessionId=%s launchDuration=%d", s.sessionId, s.launchDuration.Milliseconds())
+func sessionLine(s logSession, logger *zap.Logger) string {
+	line := fmt.Sprintf("log-session,sessionId=%s launchDuration=%d,clientIp=%q",
+		s.sessionId,
+		s.launchDuration.Milliseconds(),
+		s.clientIp,
+	)
 	if s.appId != "" {
 		line = line + fmt.Sprintf(",appId=%q,appVersion=%q", s.appId, s.appVersion)
 	}
@@ -51,40 +53,48 @@ func sessionLine(s logSession) string {
 		line = line + fmt.Sprintf(",userId=%q", s.userId)
 	}
 	line = line + fmt.Sprintf(" %d", s.launchTime.UnixMilli())
+	logger.Debug("session-line-protocol", zap.Object("session", s), zap.String("line", line))
 	return line
 }
 
-func uploadLines(ep string, db string, pol string, tok string, lines []string, logger *zap.Logger) bool {
-	if logger == nil {
-		logger = caddy.Log()
-	}
+func uploadLines(ep string, db string, pol string, tok string, lines []string, logger *zap.Logger) error {
+	content := strings.Join(lines, "\n") + "\n"
+	logger.Debug("AdobeUsageTracker uploading line protocol",
+		zap.Strings("incoming", lines), zap.String("outgoing", content))
 	target := fmt.Sprintf("%s/write?db=%s&rp=%s&precision=ms", ep, url.QueryEscape(db), url.QueryEscape(pol))
-	body := strings.NewReader(strings.Join(lines, "\n") + "\n")
+	body := strings.NewReader(content)
 	req, err := http.NewRequest("POST", target, body)
 	if err != nil {
-		caddy.Log().Error("influx upload create request error", zap.String("error", err.Error()))
-		return false
+		caddy.Log().Error("AdobeUsageTracker upload create request error", zap.String("error", err.Error()))
+		return err
 	}
 	req.Header.Set("Content-Type", "text/plain")
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", tok))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		logger.Error("influx upload POST request error", zap.String("error", err.Error()))
-		return false
+		logger.Error("AdobeUsageTracker upload POST request error", zap.String("error", err.Error()))
+		return err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			logger.Error("influx upload POST response body close error", zap.String("error", err.Error()))
+			logger.Error("AdobeUsageTracker POST response close error", zap.String("error", err.Error()))
 		}
 	}(res.Body)
 	if res.StatusCode != http.StatusNoContent {
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			logger.Error("influx upload read response error", zap.String("error", err.Error()))
+			logger.Error("AdobeUsageTracker upload error response invalid",
+				zap.Int("status", res.StatusCode),
+				zap.String("error", err.Error()),
+			)
+		} else {
+			logger.Error("AdobeUsageTracker upload data issues",
+				zap.Int("status", res.StatusCode),
+				zap.String("error", string(body)),
+			)
 		}
-		logger.Error("influx upload data issues", zap.Int("status", res.StatusCode), zap.String("error", string(body)))
-		return false
+		return fmt.Errorf("upload status code: %d", res.StatusCode)
 	}
-	return true
+	return nil
 }
