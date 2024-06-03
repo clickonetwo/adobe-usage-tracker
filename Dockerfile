@@ -7,7 +7,7 @@
 FROM caddy:2.8.1-builder AS builder
 
 RUN xcaddy build \
-    --with github.com/clickonetwo/tracker@latest
+    --with github.com/clickonetwo/tracker@v1.0.0-rc.2
 
 FROM caddy:2.8.1
 
