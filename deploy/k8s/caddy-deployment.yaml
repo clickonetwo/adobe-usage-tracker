@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.33.0 (HEAD)
+  labels:
+    io.kompose.service: caddy
+  name: caddy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: caddy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.33.0 (HEAD)
+      labels:
+        io.kompose.network/tracker-default: "true"
+        io.kompose.service: caddy
+    spec:
+      containers:
+        - image: clickonetwo/adobe_usage_tracker:latest
+          name: caddy
+          ports:
+            - containerPort: 443
+              hostPort: 443
+              protocol: TCP
+            - containerPort: 443
+              hostPort: 443
+              protocol: UDP
+          volumeMounts:
+            - mountPath: /etc/caddy/Caddyfile
+              name: caddy-cm0
+              subPath: Caddyfile
+            - mountPath: /etc/caddy/lcs-ulecs.pem.cert
+              name: caddy-cm1
+              subPath: lcs-ulecs.pem.cert
+            - mountPath: /etc/caddy/lcs-ulecs.pem.key
+              name: caddy-cm2
+              subPath: lcs-ulecs.pem.key
+            - mountPath: /data
+              name: caddy-tracker-data
+            - mountPath: /config
+              name: caddy-tracker-config
+      restartPolicy: Always
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 8.8.8.8
+          - 8.8.4.4
+      volumes:
+        - configMap:
+            items:
+              - key: Caddyfile.prod
+                path: Caddyfile
+            name: caddy-cm0
+          name: caddy-cm0
+        - configMap:
+            items:
+              - key: lcs-ulecs.pem.cert
+                path: lcs-ulecs.pem.cert
+            name: caddy-cm1
+          name: caddy-cm1
+        - configMap:
+            items:
+              - key: lcs-ulecs.pem.key
+                path: lcs-ulecs.pem.key
+            name: caddy-cm2
+          name: caddy-cm2
+        - name: caddy-tracker-data
+          persistentVolumeClaim:
+            claimName: caddy-tracker-data
+        - name: caddy-tracker-config
+          persistentVolumeClaim:
+            claimName: caddy-tracker-config

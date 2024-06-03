@@ -139,8 +139,13 @@ func (m AdobeUsageTracker) ServeHTTP(w http.ResponseWriter, r *http.Request, nex
 		return err
 	}
 	sessions := parseLog(string(buf), r.RemoteAddr)
+	userAgent, err := url.QueryUnescape(r.UserAgent())
+	if err != nil {
+		userAgent = r.UserAgent()
+	}
 	logger.Info("AdobeUsageTracker: incoming request summary",
 		zap.String("remote-address", r.RemoteAddr),
+		zap.String("user-agent", userAgent),
 		zap.Int("content-length", len(buf)),
 		zap.Int("session-count", len(sessions)),
 	)

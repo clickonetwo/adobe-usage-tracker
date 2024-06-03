@@ -1,0 +1,38 @@
+apiVersion: v1
+data:
+  lcs-ulecs.pem.key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3E0wRcbLGHa+x
+    0PJg0l2KG0VPWt502RBNB66BpdluEZPGbLGzXkP7Nb1LTeK2HebC/V0Cui6WWEP1
+    EC8AdsmMH19vsLkR1Ku6Mf46gOahXn26WsMKVQ3iCyeWFT3M0JPOdvg4yBgc7jaz
+    +EVZKGbBWDTRPWLklKHLFKsUEQpQVGodzsDOw10IsBPY49GzWPZS9ns51pp0QJtR
+    QoqB2jeu5r9qcjxGXg18waFRa2YRiLDanPIW9VyOim6uU3SS+g3asFohKFhds5Ql
+    9D4T5biU/+J7bx9MJPKhW7rvaLgSORdWgAq3wWB6VEGfYh4/hhgtQSqyJMMHiiwQ
+    j3sjw6JpAgMBAAECggEAQN/CM2ZGcwT/BvRjh2LUScXLJEkvjlmC+MDxmjiimWn6
+    IzTOLaEIVwMejopNfbqP1OYCaR5/tsAVaMhw12nAlvphD8ugcUybA/KGQ8X8tA8v
+    X3OdLNKiBklsoDbrvOHmlqG66Sgiv1G8qb6fGG6EJxxyLvlhS13ODZBH5Wb6cCc4
+    OmgPjmzBBGTq1gJc8P/04RVF5tHUDnRgFUMc3OAR0alLTZwFmF/GbwUUxzqu85/2
+    w00YCImH00OpwsWGzo6OWhafREQnL8aKOhbqwklIW8/Qk8WTRhqfSLSk4n2tSWzW
+    2FJYtynQlAayC/iWePc94LDcPpJtzfgPTSVxFGqENwKBgQDZtS8Na3JhyZlWae7/
+    IrAtgasxr0IKVB1k5IZvy5SftsKmrAXZhcs8h1jKbPcCE4T7y/ZjWSWla2LM66fX
+    PuXsNdYSQds54RMjmSde3AdVTxLY3pCK7AKXTY/M/xnebY/hcQW97Ue4WJbm/PvG
+    BedrXT9NAZhN1dgfLcohQCJehwKBgQDXRrUY71YrJYmZs8ArkZ/+o3JJtg8r06cs
+    HGUKcn1/CZsv/NE5jFixQgFAAeBVnUv9Bon+E1RfGhPF6YCZyJR/u1zQoPccNK44
+    ASTwW3T/bayRo7lp+lXD5XtGvx8MzSG25odB6Snu+CmGaWFUY2xjblleqcdHkdp4
+    SKJ7XPDDjwKBgDSjkFroTeHDAuZX+seJtZtrLN94hrlEmU7Zyn+hc7AiWnI+SbPM
+    m9VozFk1e4vu+EqBiHOBDI8wpdTybcSnmqRAaCBF+CHIf/4te8192fAQjHgPaFeO
+    tRmsUUa5r6GOUCmsUD0Z8CtskCANrzq0Fr5o73NJHXBEclsnkSX1AdplAoGAEdb7
+    NPjIhETVFVavCy1DO//hfbhHo5MjnGUx/l6khb2PDbf+wq0dwHq+zcYaCB5D6ND8
+    6IBDkqn/j3wdOyFDJR6qv2NHdx/qfBukKwL5PB2jmmIeAGlNaDGBOMin0xDAxX5v
+    IQgogHQyRMBA35RprAe+AjlBmW291A/43w5BqYMCgYEAuZRGbY7z7NR1KIaywEDm
+    N/MLQb8e2UPO/7FUIqV/EmCF5vXYYOGz54/Dlc14e+B+dgNEFcJurKz6gtfzqeNN
+    eaRlnIMlOxusdSDoTvsohISwClpA5t/mQa5aA+r94G7DDxqjP+v6P97kOjorBfa+
+    W8jIjrf+G7UV+ZEKugUpmsU=
+    -----END PRIVATE KEY-----
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.kompose.service: caddy
+  name: caddy-cm2
