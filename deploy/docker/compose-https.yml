@@ -1,6 +1,6 @@
 services:
-  caddy:
-    image: clickonetwo/adobe_usage_tracker:latest
+  tracker-https:
+    image: clickonetwo/adobe_usage_tracker:v1.0.0
     restart: unless-stopped
     ports:
       - "443:443"

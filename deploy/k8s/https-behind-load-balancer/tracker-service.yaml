@@ -1,21 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.33.0 (HEAD)
   labels:
-    io.kompose.service: caddy
+    io.clickonetwo.service: tracker
   name: caddy
 spec:
   type: LoadBalancer
   ports:
-    - name: "443"
+    - name: https
       port: 443
       targetPort: 443
-    - name: 443-udp
+    - name: https-udp
       port: 443
       protocol: UDP
       targetPort: 443
   selector:
-    io.kompose.service: caddy
+    io.clickonetwo.service: tracker

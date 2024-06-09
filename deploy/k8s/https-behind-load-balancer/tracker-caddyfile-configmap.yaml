@@ -1,0 +1,26 @@
+apiVersion: v1
+data:
+  Caddyfile.prod: |
+    :443 {
+    	tls /etc/caddy/lcs-ulecs.pem.cert /etc/caddy/lcs-ulecs.pem.key
+    	@post {
+    		method POST
+    	}
+    	route @post {
+    		adobe_usage_tracker {
+                endpoint https://influxUploadHost
+                database InfluxDatabaseName
+                policy InfuxRetentionPolicyName
+                token InfluxApiTokenWithUploadPrivilege
+    		}
+    		reverse_proxy https://lcs-ulecs.adobe.io
+    	}
+    	reverse_proxy https://lcs-ulecs.adobe.io
+    }
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.clickonetwo.service: tracker
+  name: tracker-caddyfile

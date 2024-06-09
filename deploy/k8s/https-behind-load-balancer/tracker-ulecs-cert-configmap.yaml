@@ -35,5 +35,5 @@ metadata:
   annotations:
     use-subpath: "true"
   labels:
-    io.kompose.service: caddy
-  name: caddy-cm1
+    io.clickonetwo.service: tracker
+  name: tracker-ulecs-cert

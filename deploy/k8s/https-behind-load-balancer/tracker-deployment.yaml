@@ -1,31 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.33.0 (HEAD)
   labels:
-    io.kompose.service: caddy
-  name: caddy
+    io.clickonetwo.service: tracker
+  name: tracker
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: caddy
+      io.clickonetwo.service: tracker
   strategy:
-    type: Recreate
+    type: RollingUpdate
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert
-        kompose.version: 1.33.0 (HEAD)
       labels:
-        io.kompose.network/tracker-default: "true"
-        io.kompose.service: caddy
+        io.clickonetwo.service: tracker
     spec:
       containers:
-        - image: clickonetwo/adobe_usage_tracker:latest
-          name: caddy
+        - image: clickonetwo/adobe_usage_tracker:v1.0.0
+          name: tracker
           ports:
             - containerPort: 443
               hostPort: 443
@@ -35,18 +27,18 @@ spec:
               protocol: UDP
           volumeMounts:
             - mountPath: /etc/caddy/Caddyfile
-              name: caddy-cm0
+              name: tracker-caddyfile
               subPath: Caddyfile
             - mountPath: /etc/caddy/lcs-ulecs.pem.cert
-              name: caddy-cm1
+              name: tracker-ulecs-cert
               subPath: lcs-ulecs.pem.cert
             - mountPath: /etc/caddy/lcs-ulecs.pem.key
-              name: caddy-cm2
+              name: tracker-ulecs-key
               subPath: lcs-ulecs.pem.key
             - mountPath: /data
-              name: caddy-tracker-data
+              name: tracker-data-volume
             - mountPath: /config
-              name: caddy-tracker-config
+              name: tracker-config-volume
       restartPolicy: Always
       dnsPolicy: "None"
       dnsConfig:
@@ -58,23 +50,23 @@ spec:
             items:
               - key: Caddyfile.prod
                 path: Caddyfile
-            name: caddy-cm0
-          name: caddy-cm0
+            name: tracker-caddyfile
+          name: tracker-caddyfile
         - configMap:
             items:
               - key: lcs-ulecs.pem.cert
                 path: lcs-ulecs.pem.cert
-            name: caddy-cm1
-          name: caddy-cm1
+            name: tracker-ulecs-cert
+          name: tracker-ulecs-cert
         - configMap:
             items:
               - key: lcs-ulecs.pem.key
                 path: lcs-ulecs.pem.key
-            name: caddy-cm2
-          name: caddy-cm2
-        - name: caddy-tracker-data
+            name: tracker-ulecs-key
+          name: tracker-ulecs-key
+        - name: tracker-data-volume
           persistentVolumeClaim:
-            claimName: caddy-tracker-data
-        - name: caddy-tracker-config
+            claimName: tracker-data-volume
+        - name: tracker-config-volume
           persistentVolumeClaim:
-            claimName: caddy-tracker-config
+            claimName: tracker-config-volume

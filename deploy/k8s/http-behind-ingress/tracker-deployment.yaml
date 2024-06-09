@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.clickonetwo.service: tracker
+  name: tracker
+spec:
+  selector:
+    matchLabels:
+      io.clickonetwo.service: tracker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.clickonetwo.service: tracker
+    spec:
+      containers:
+        - image: clickonetwo/adobe_usage_tracker:v1.0.0
+          name: tracker
+          ports:
+            - containerPort: 80
+              protocol: TCP
+            - containerPort: 80
+              protocol: UDP
+          volumeMounts:
+            - mountPath: /etc/caddy/Caddyfile
+              name: tracker-caddyfile
+              subPath: Caddyfile
+            - mountPath: /data
+              name: tracker-data-volume
+            - mountPath: /config
+              name: tracker-config-volume
+      restartPolicy: Always
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 8.8.8.8
+          - 8.8.4.4
+      volumes:
+        - configMap:
+            items:
+              - key: Caddyfile.prod
+                path: Caddyfile
+            name: tracker-caddyfile
+          name: tracker-caddyfile
+        - name: tracker-data-volume
+          persistentVolumeClaim:
+            claimName: tracker-data-volume
+        - name: tracker-config-volume
+          persistentVolumeClaim:
+            claimName: tracker-config-volume

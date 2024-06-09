@@ -2,8 +2,8 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    io.kompose.service: caddy-tracker-data
-  name: caddy-tracker-data
+    io.clickonetwo.service: tracker
+  name: tracker-data-volume
 spec:
   accessModes:
     - ReadWriteOnce
