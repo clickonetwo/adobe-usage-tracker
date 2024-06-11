@@ -1,7 +1,7 @@
 /*
  * Copyright 2024 Daniel C. Brotsky. All rights reserved.
  * All the copyrighted work in this repository is licensed under the
- * GNU Affero General Public License v3, reproduced in the LICENSE file.
+ * open source MIT License, reproduced in the LICENSE file.
  */
 
 // Package tracker provides the caddy adobe_usage_tracker plugin.
