@@ -1,16 +1,16 @@
 apiVersion: v1
 data:
-  Caddyfile.prod: |
+  Caddyfile: |
     :80 {
     	@post {
     		method POST
     	}
     	route @post {
     		adobe_usage_tracker {
-                endpoint https://influxUploadHost
-                database InfluxDatabaseName
-                policy InfuxRetentionPolicyName
-                token InfluxApiTokenWithUploadPrivilege
+    			endpoint https://us-east-1-1.aws.cloud2.influxdata.com
+    			database SampleDatabase
+    			policy SamplePolicy
+    			token 8pIgGAxCKdwL8YyiQ3u0JUrr_t98C9fw3_WCqsfuyEovElVMq3Uep9Ghu2INtsoBr_vzbKULA2AesrQbsfJt6g==
     		}
     		reverse_proxy https://lcs-ulecs.adobe.io
     	}

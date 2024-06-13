@@ -1,0 +1,21 @@
+services:
+  adobe_usage_tracker:
+    image: clickonetwo/adobe_usage_tracker:v1.0.0
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./lcs-ulecs.pem.cert:/etc/caddy/lcs-ulecs.pem.cert
+      - ./lcs-ulecs.pem.key:/etc/caddy/lcs-ulecs.pem.key
+      - tracker-data:/data
+      - tracker-config:/config
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+volumes:
+  tracker-data:
+    external: false
+  tracker-config:
+    external: false

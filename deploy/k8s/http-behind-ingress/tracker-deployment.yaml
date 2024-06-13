@@ -40,7 +40,7 @@ spec:
       volumes:
         - configMap:
             items:
-              - key: Caddyfile.prod
+              - key: Caddyfile
                 path: Caddyfile
             name: tracker-caddyfile
           name: tracker-caddyfile
