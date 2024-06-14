@@ -1,0 +1,34 @@
+:443 {
+	tls lcs-ulecs.pem.cert lcs-ulecs.pem.key
+	@post {
+		method POST
+	}
+	route @post {
+		adobe_usage_tracker {
+			endpoint https://us-east-1-1.aws.cloud2.influxdata.com
+			database NRK
+			policy Production
+			token OFMGXsUy33EnHXOusWCzpB0-7Rk5W7CxxBh-x3UP0igghVW9HF0MXeuNFiEa5B6Mt7ySuH6aGlswINTWwDqtxA==
+		}
+		reverse_proxy {
+			dynamic a {
+				name lcs-ulecs.adobe.io
+				port 443
+				resolvers 8.8.8.8 8.8.4.4
+			}
+			transport http {
+				tls_server_name lcs-ulecs.adobe.io
+			}
+		}
+	}
+	reverse_proxy {
+		dynamic a {
+			name lcs-ulecs.adobe.io
+			port 443
+			resolvers 8.8.8.8 8.8.4.4
+		}
+		transport http {
+			tls_server_name lcs-ulecs.adobe.io
+		}
+	}
+}

@@ -32,12 +32,26 @@ Fourth (and finally), move the entire `server` directory with the built executab
 Once these steps are complete, you can run the tracker manually as follows:
 
 1. Change into the `server` directory.
-2. Start Caddy with `sudo ./caddy run`  (`sudo` is needed because caddy listens on the privileged port 443).
+2. Start Caddy with `./caddy run`. (If Caddy fails to start because it needs privileges to listen on port 443, the try `sudo ./caddy run`.)
 3. Caddy will run, with log output to the terminal, until interrupted.
 
-To set Caddy up as a service, follow the instructions for your OS.  You will want to redirect standard output and standard error to log files.
+To set Caddy up as a service, follow the instructions for your OS.  You will want to redirect standard error to a log file or, even better, add this snippet at the very top of your caddy file:
+
+```Caddyfile
+{
+	log {
+		output file caddy.log
+	}
+}
+```
 
 ### A note about DNS
 
-Because Caddy always uses its host for DNS resolution, and needs to find the Adobe log servers, must your server’s DNS configuration must resolve `lcs-ulecs.adobe.io` against Adobe’s nameservers, *not* against its own address. Otherwise the Caddy server will attempt to forward each request to itself.
+The `Caddyfile` in this directory relies on Caddy’s host to do DNS resolution, and specifies the upstream host as `https://lcs-ulecs.adobe.io`.  Thus, if you are using DNS spoofing in your local network to force clients to find your server, and you are running Caddy on a server on your local network, you can’t use this `Caddyfile`.  If you did, the DNS resolution for `lcs-ulecs.adobe.com` would find your own server, *not* the Adobe servers.
+
+If you want to run your Caddy server on a local network with DNS spoofing in place, then use the `Caddyfile-with-public-dns` configuration file in this directory, which tells Caddy to resolve the `lcs-ulecs.adobe.io` address dynamically against Google’s public DNS servers.  You can do this either by renaming this file to `Caddyfile` and using the instructions above, or by invoking Caddy with
+
+```bash
+./caddy run --config Caddyfile-with-public-dns
+```
 
