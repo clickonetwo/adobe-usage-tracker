@@ -47,7 +47,9 @@ The `adobe_usage_tracker` plugin uses the Influx v1 API to upload log measuremen
 
 All versions of Influx support uploads via the v1 API.  But if your Influx installation uses “buckets” (Influx v2.7 and higher) you will need to establish a [*DBRP mapping*](https://docs.influxdata.com/influxdb/v2/reference/api/influxdb-1x/dbrp/) before you can configure your plugin parameters.  The docs for using the Influx CLI to establish a mapping can be found [here for self-hosted configurations](https://docs.influxdata.com/influxdb/v2/reference/cli/influx/v1/dbrp/), and [here for cloud-hosted configurations](https://docs.influxdata.com/influxdb/cloud/query-data/influxql/dbrp/).
 
-Once you have determined the correct Influx API parameters for your usage, you configure your `adobe_usage_tracker` plugin by adding a snippet like this to your Caddyfile (replacing all the values in angle brackets with values appropriate to your environment):
+The `adobe_usage_tracker` plugin includes in the timestream data the remote host address from which each log is uploaded. Determination of this address is done by looking for an `X-Forwarded-For` header in the request and using the first address found in that header; if no such header is found then it uses the address from which the Caddy server received the request.  Depending on your deployment environment, you may want the plugin to use a different header (such as `Via` or `X-Real-IP`) or to use the last address found in that header rather than the first.  Both of these can be configured.
+
+Once you have determined the correct Influx API parameters and header controls for your usage, you configure your `adobe_usage_tracker` plugin by adding a snippet like this to your Caddyfile (replacing all the values in angle brackets with values appropriate to your environment):
 
 ```Caddyfile
 adobe_usage_tracker {
@@ -55,10 +57,12 @@ adobe_usage_tracker {
     database <influxDatabaseName>
     policy <infuxRetentionPolicyName<
     token <influxApiTokenWithUploadPrivilege>
-    }
+    header <headerName or "" for no header>
+    position <first or last>
+}
 ```
 
-This snippet, as with the `tls` snippet shown above, should be placed in your Caddyfile in the entry for log upload.  Working Caddyfiles with instructions may be found in the deploy directory in this repository (see next section).
+This snippet, as with the `tls` snippet shown above, should be placed in your Caddyfile in the entry for log upload.  Working Caddyfiles with instructions may be found in the deploy directory in this repository (see next section). The four Influx API parameters _must_ be supplied, but the `header` and `position` parameters are both optional (defaulting to `X-Forwarded-For` and `first`, respectively).
 
 ## Deployment Scenarios
 

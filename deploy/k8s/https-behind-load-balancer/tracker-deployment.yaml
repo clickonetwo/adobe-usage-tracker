@@ -16,7 +16,7 @@ spec:
         io.clickonetwo.service: tracker
     spec:
       containers:
-        - image: clickonetwo/adobe_usage_tracker:v1.0.0
+        - image: clickonetwo/adobe_usage_tracker:v1.1.0
           name: tracker
           ports:
             - containerPort: 443

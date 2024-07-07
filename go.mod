@@ -3,7 +3,7 @@ module github.com/clickonetwo/tracker
 go 1.22.3
 
 require (
-	github.com/caddyserver/caddy/v2 v2.8.1
+	github.com/caddyserver/caddy/v2 v2.8.4
 	go.uber.org/zap v1.27.0
 )
 

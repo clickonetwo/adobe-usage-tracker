@@ -17,14 +17,14 @@ go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
 Then, invoke the installed `xcaddy` command:
 
 ```bash
-xcaddy build --with github.com/clickonetwo/tracker@v1.0.0
+xcaddy build --with github.com/clickonetwo/tracker@v1.1.0
 ```
 
 This will create a temporary subdirectory, move into it, fetch and build a `caddy` executable with the plugin, place the resulting `caddy` executable in the original working directory, and then delete the temporary subdirectory.  (See [the xcaddy readme](https://github.com/caddyserver/xcaddy) for full details on how to use `xcaddy`.)
 
 Build notes for developers:
 
-* The above build instructions presume that your build machine has the same OS and processor architecture as your server.  If not, then you will need the xcaddy command to cross-compile caddy for the target, which you can do by prefixing the `xcaddy` command with `env GOOS=<targetos> GOARCH=<targetarch>` .  For example, if the server is an amd64 linux box, the xcaddy-command would be `env GOOS=linux GOARCH=amd64 xcaddy build --with github.com/clickonetwo/tracker@v1.0.0`.
+* The above build instructions presume that your build machine has the same OS and processor architecture as your server.  If not, then you will need the xcaddy command to cross-compile caddy for the target, which you can do by prefixing the `xcaddy` command with `env GOOS=<targetos> GOARCH=<targetarch>` .  For example, if the server is an amd64 linux box, the xcaddy-command would be `env GOOS=linux GOARCH=amd64 xcaddy build --with github.com/clickonetwo/tracker@v1.1.0`.
 * The `tracker` module file `go.mod` specifies using a version of the Caddy server that matches the version of Caddy used by the Caddy builder image in the Dockerfile in the `docker` deployment sample directory (currently 2.8.1). This is not the latest version of Caddy, but `xcaddy` will fetch the latest version of Caddy available when it does its build.
 
 Fourth (and finally), move the entire `server` directory with the built executable onto your server

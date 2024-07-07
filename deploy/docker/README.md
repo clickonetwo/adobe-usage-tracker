@@ -11,12 +11,12 @@ Third, replace the content in the `adobe_usage_tracker` configuration section in
 Fourth, fetch or build a container image of Caddy with the `adobe_usage_tracker` plugin installed.
 
 * If you are running a Linux OS environment on an arm64 or amd64 architecture, you can simply fetch the pre-built container mentioned in the `compose.yaml` file from the Docker hub with
-   `docker pull clickonetwo/adobe_usage_tracker:1.0.0`.
+   `docker pull clickonetwo/adobe_usage_tracker:1.1.0`.
   In this case, no edit of the compose file is required.
 * If you are running a non-Linux OS or an unusual processor architecture, you will need to build the container yourself using the Dockerfile in this directory, using the command
-  `docker build -t my_docker_account/adobe_usage_tracker:1.0.0 .`
+  `docker build -t my_docker_account/adobe_usage_tracker:1.1.0 .`
   and push it to your image repository with
-  `docker push my_docker_account/adobe_usage_tracker:1.0.0`
+  `docker push my_docker_account/adobe_usage_tracker:1.1.0`
   In this case, you will also need to edit the `compose.yaml` file to pull that image.
 
 At this point, you are ready to run Caddy in its container with the command:

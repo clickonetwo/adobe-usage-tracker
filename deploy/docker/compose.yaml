@@ -1,6 +1,6 @@
 services:
   adobe_usage_tracker:
-    image: clickonetwo/adobe_usage_tracker:v1.0.0
+    image: clickonetwo/adobe_usage_tracker:v1.1.0
     restart: unless-stopped
     ports:
       - "443:443"

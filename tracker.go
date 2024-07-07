@@ -16,8 +16,10 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"go.uber.org/zap"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 func init() {
@@ -49,11 +51,15 @@ type AdobeUsageTracker struct {
 	Database string `json:"database,omitempty"`
 	Policy   string `json:"policy,omitempty"`
 	Token    string `json:"token,omitempty"`
+	Header   string `json:"header,omitempty"`
+	Position string `json:"position,omitempty"`
 
 	ep  string
 	db  string
 	rp  string
 	tok string
+	hdr string
+	pos string
 }
 
 // CaddyModule returns the Caddy module information.
@@ -95,6 +101,15 @@ func (m *AdobeUsageTracker) Provision(caddy.Context) error {
 		return fmt.Errorf("A token must be specified")
 	}
 	m.tok = m.Token
+	m.hdr = m.Header
+	switch strings.ToLower(m.Position) {
+	case "first":
+		m.pos = "first"
+	case "last":
+		m.pos = "last"
+	default:
+		return fmt.Errorf("Position must be \"first\" or \"last\", found %q", m.Position)
+	}
 	return nil
 }
 
@@ -125,7 +140,49 @@ func (m *AdobeUsageTracker) Validate() error {
 	if m.tok == "" {
 		return fmt.Errorf("token must be specified")
 	}
+	if m.pos != "first" && m.pos != "last" {
+		return fmt.Errorf("position must be \"first\" or \"last\"")
+	}
 	return nil
+}
+
+// UnmarshalCaddyfile implements caddyfile.Unmarshaler.
+func (m *AdobeUsageTracker) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
+	d.Next() // consume directive name
+
+	// set default values
+	m.Header = "X-Forwarded-For"
+	m.Position = "first"
+	for nesting := d.Nesting(); d.NextBlock(nesting); {
+		key := d.Val()
+		if !d.NextArg() {
+			return d.ArgErr()
+		}
+		switch key {
+		case "endpoint":
+			m.Endpoint = d.Val()
+		case "database":
+			m.Database = d.Val()
+		case "policy":
+			m.Policy = d.Val()
+		case "token":
+			m.Token = d.Val()
+		case "header":
+			m.Header = d.Val()
+		case "position":
+			m.Position = d.Val()
+		default:
+			return d.ArgErr()
+		}
+	}
+	return nil
+}
+
+// parseCaddyfile unmarshals tokens from h into a new AdobeUsageTracker.
+func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
+	var m AdobeUsageTracker
+	err := m.UnmarshalCaddyfile(h.Dispenser)
+	return m, err
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler. It extracts
@@ -138,13 +195,14 @@ func (m AdobeUsageTracker) ServeHTTP(w http.ResponseWriter, r *http.Request, nex
 	if err != nil {
 		return err
 	}
-	sessions := parseLog(string(buf), r.RemoteAddr)
+	remoteAddr := m.parseRemoteAddr(r, logger)
+	sessions := parseLog(string(buf), remoteAddr)
 	userAgent, err := url.QueryUnescape(r.UserAgent())
 	if err != nil {
 		userAgent = r.UserAgent()
 	}
 	logger.Info("AdobeUsageTracker: incoming request summary",
-		zap.String("remote-address", r.RemoteAddr),
+		zap.String("remote-address", remoteAddr),
 		zap.String("user-agent", userAgent),
 		zap.Int("content-length", len(buf)),
 		zap.Int("session-count", len(sessions)),
@@ -164,36 +222,50 @@ func (m AdobeUsageTracker) ServeHTTP(w http.ResponseWriter, r *http.Request, nex
 	return next.ServeHTTP(w, r)
 }
 
-// UnmarshalCaddyfile implements caddyfile.Unmarshaler.
-func (m *AdobeUsageTracker) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
-	d.Next() // consume directive name
-
-	for nesting := d.Nesting(); d.NextBlock(nesting); {
-		key := d.Val()
-		if !d.NextArg() {
-			return d.ArgErr()
+// / parseRemoteAddr consults the request headers and determines
+// / the remote address of the actual client doing the upload
+func (m *AdobeUsageTracker) parseRemoteAddr(r *http.Request, l *zap.Logger) string {
+	remoteHost, remotePort, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		remoteHost, remotePort, _ = strings.Cut(r.RemoteAddr, ":")
+	}
+	if m.hdr == "" {
+		l.Debug("AdobeUsageTracker: per config, ignoring headers",
+			zap.String("remote-address", remoteHost),
+			zap.String("remote-port", remotePort))
+		return remoteHost
+	}
+	header := r.Header.Get(m.hdr)
+	if header == "" {
+		l.Warn("AdobeUsageTracker: header not found",
+			zap.String("header_name", m.hdr),
+			zap.String("remote-address", remoteHost),
+			zap.String("remote-port", remotePort))
+		return remoteHost
+	}
+	l.Debug("AdobeUsageTracker: found header",
+		zap.String("header_name", m.hdr),
+		zap.String("header-value", header))
+	parts := strings.Split(header, ",")
+	address := strings.Trim(parts[0], " ")
+	if len(parts) > 1 && m.pos == "last" {
+		last := strings.Trim(parts[len(parts)-1], " ")
+		if last == "" && len(parts) > 2 {
+			last = strings.Trim(parts[len(parts)-2], " ")
 		}
-		switch key {
-		case "endpoint":
-			m.Endpoint = d.Val()
-		case "database":
-			m.Database = d.Val()
-		case "policy":
-			m.Policy = d.Val()
-		case "token":
-			m.Token = d.Val()
-		default:
-			return d.ArgErr()
+		if last != "" {
+			address = last
 		}
 	}
-	return nil
-}
-
-// parseCaddyfile unmarshals tokens from h into a new AdobeUsageTracker.
-func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	var m AdobeUsageTracker
-	err := m.UnmarshalCaddyfile(h.Dispenser)
-	return m, err
+	if address == "" {
+		l.Warn("AdobeUsageTracker: no address found in header",
+			zap.String("header_name", m.hdr),
+			zap.String("header_value", header),
+			zap.String("remote-address", remoteHost),
+			zap.String("remote-port", remotePort))
+		return remoteHost
+	}
+	return address
 }
 
 // Interface guards
